@@ -24,6 +24,7 @@ export default function Component() {
   const [chartTitle, setChartTitle] = useState<string>('')
   const { theme, setTheme } = useTheme()
   const [showControls, setShowControls] = useState(true)
+  const [showDummyData, setShowDummyData] = useState(false)
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -355,11 +356,31 @@ export default function Component() {
         [yColumn]: parseFloat(row[yColumn])
       })).filter((d: any) => !isNaN(d[yColumn]))
       setData(parsedData)
+      if (showDummyData) {
+        setChartType('Bar')
+      }
     }
-  }, [xColumn, yColumn, rawData])
+  }, [xColumn, yColumn, rawData, showDummyData])
 
   const triggerFileInput = () => {
     fileInputRef.current?.click()
+  }
+
+  const generateDummyData = () => {
+    const dummyData = [
+      { month: 'Jan', sales: 120, profit: 20 },
+      { month: 'Feb', sales: 150, profit: 25 },
+      { month: 'Mar', sales: 200, profit: 35 },
+      { month: 'Apr', sales: 180, profit: 30 },
+      { month: 'May', sales: 250, profit: 45 },
+      { month: 'Jun', sales: 300, profit: 55 },
+    ]
+    setRawData(dummyData)
+    setColumns(['month', 'sales', 'profit'])
+    setXColumn('month')
+    setYColumn('sales')
+    setChartTitle('Monthly Sales')
+    setShowDummyData(true)
   }
 
   return (
@@ -393,7 +414,7 @@ export default function Component() {
       <CardContent>
         {showControls && (
           <>
-            <div className="mb-4">
+            <div className="mb-4 flex space-x-2">
               <input
                 type="file"
                 accept=".csv"
@@ -404,6 +425,9 @@ export default function Component() {
               />
               <Button onClick={triggerFileInput}>
                 Import CSV
+              </Button>
+              <Button onClick={generateDummyData}>
+                Show Example
               </Button>
             </div>
             {columns.length > 0 && (
