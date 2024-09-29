@@ -40,6 +40,11 @@ export default function Component() {
 
     const rc = rough.svg(svg.node() as SVGSVGElement)
 
+    // Add this function to generate a random color
+    const getRandomColor = () => {
+      return `hsl(${Math.random() * 360}, 70%, 50%)`
+    }
+
     if (chartType === 'Pie') {
       const width = dimensions.width
       const height = dimensions.height
@@ -163,6 +168,9 @@ export default function Component() {
           .style("font-family", "Comic Sans MS, cursive"))
 
       if (chartType === 'Line') {
+        // Generate a random color for the line
+        const lineColor = getRandomColor()
+
         // Draw the line
         const lineGenerator = d3.line<any>()
           .x(d => x(d[xColumn])! + x.bandwidth() / 2)
@@ -172,7 +180,7 @@ export default function Component() {
         if (linePath) {
           g.node()?.appendChild(
             rc.path(linePath, {
-              stroke: 'hsl(var(--primary))',
+              stroke: lineColor, // Use the random color here
               strokeWidth: 2,
               roughness: 1.5,
               fillStyle: 'solid',
@@ -188,7 +196,7 @@ export default function Component() {
               y(d[yColumn]),
               6,
               {
-                fill: 'hsl(var(--primary))',
+                fill: lineColor, // Use the same random color for dots
                 fillStyle: 'solid',
                 stroke: 'none',
                 roughness: 1.5,
