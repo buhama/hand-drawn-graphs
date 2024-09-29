@@ -6,6 +6,8 @@ import rough from 'roughjs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Papa from 'papaparse'
+import { useTheme } from "next-themes"
+import { MoonIcon, SunIcon } from "@radix-ui/react-icons"
 
 export default function Component() {
   const svgRef = useRef<SVGSVGElement | null>(null)
@@ -17,6 +19,7 @@ export default function Component() {
   const [xColumn, setXColumn] = useState<string | null>(null)
   const [yColumn, setYColumn] = useState<string | null>(null)
   const [chartType, setChartType] = useState<string>('Line')
+  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -40,9 +43,12 @@ export default function Component() {
 
     const rc = rough.svg(svg.node() as SVGSVGElement)
 
-    // Add this function to generate a random color
+    // Update getRandomColor function to consider the theme
     const getRandomColor = () => {
-      return `hsl(${Math.random() * 360}, 70%, 50%)`
+      const hue = Math.random() * 360
+      const saturation = theme === 'dark' ? '60%' : '70%'
+      const lightness = theme === 'dark' ? '60%' : '50%'
+      return `hsl(${hue}, ${saturation}, ${lightness})`
     }
 
     if (chartType === 'Pie') {
@@ -294,7 +300,20 @@ export default function Component() {
             })
       }
     }
-  }, [dimensions, data, xColumn, yColumn, chartType])
+
+    // Update text color based on theme
+    const textColor = theme === 'dark' ? '#ffffff' : '#000000'
+
+    // Update text color for axes and labels
+    svg.selectAll('text')
+      .style('fill', textColor)
+
+    // Update tooltip styles
+    const tooltip = d3.select("body").append("div")
+      .attr("class", `absolute ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} border border-primary p-2 rounded shadow invisible`)
+      .style("font-family", "Comic Sans MS, cursive")
+
+  }, [dimensions, data, xColumn, yColumn, chartType, theme])
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -330,10 +349,22 @@ export default function Component() {
   }
 
   return (
-    <Card className="w-full max-w-6xl mx-auto"> {/* Changed max-w-3xl to max-w-6xl */}
+    <Card className="w-full max-w-6xl mx-auto">
       <CardHeader>
-        <CardTitle>Hand-Drawn Chart</CardTitle>
-        <CardDescription>Import CSV to visualize data with a sketchy appearance</CardDescription>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle>Hand-Drawn Chart</CardTitle>
+            <CardDescription>Import CSV to visualize data with a sketchy appearance</CardDescription>
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          >
+            {theme === 'dark' ? <SunIcon className="h-[1.2rem] w-[1.2rem]" /> : <MoonIcon className="h-[1.2rem] w-[1.2rem]" />}
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="mb-4">
