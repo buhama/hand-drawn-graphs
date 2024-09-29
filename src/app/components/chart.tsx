@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import Papa from 'papaparse'
 import { useTheme } from "next-themes"
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function Component() {
   const svgRef = useRef<SVGSVGElement | null>(null)
@@ -262,7 +263,7 @@ export default function Component() {
             // Add a slightly offset duplicate rectangle for a shadow effect
             const shadowRect = rc.rectangle(xPos + 2, yPos + 2, barWidth, barHeight, {
               fill: 'none',
-              stroke: 'black',
+              stroke: theme === 'dark' ? '#ffffff' : '#000000',
               strokeWidth: 1,
               roughness: 1.5,
             })
@@ -383,43 +384,43 @@ export default function Component() {
         {columns.length > 0 && (
           <div className="mb-4 flex space-x-4">
             <div>
-              <label htmlFor="chart-type-select" className="block text-sm font-medium text-gray-700">Chart Type:</label>
-              <select
-                id="chart-type-select"
-                value={chartType}
-                onChange={(e) => setChartType(e.target.value)}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
-              >
-                <option value="Line">Line Chart</option>
-                <option value="Bar">Bar Chart</option>
-                <option value="Pie">Pie Chart</option>
-              </select>
+              <label htmlFor="chart-type-select" className="block text-sm font-medium text-muted-foreground mb-2">Chart Type:</label>
+              <Select value={chartType} onValueChange={(value) => setChartType(value)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select chart type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Line">Line Chart</SelectItem>
+                  <SelectItem value="Bar">Bar Chart</SelectItem>
+                  <SelectItem value="Pie">Pie Chart</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <label htmlFor="x-axis-select" className="block text-sm font-medium text-gray-700">X-Axis:</label>
-              <select
-                id="x-axis-select"
-                value={xColumn || ''}
-                onChange={(e) => setXColumn(e.target.value)}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
-              >
-                {columns.map((col) => (
-                  <option key={col} value={col}>{col}</option>
-                ))}
-              </select>
+              <label htmlFor="x-axis-select" className="block text-sm font-medium text-muted-foreground mb-2">X-Axis:</label>
+              <Select value={xColumn || ''} onValueChange={(value) => setXColumn(value)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select X-Axis" />
+                </SelectTrigger>
+                <SelectContent>
+                  {columns.map((col) => (
+                    <SelectItem key={col} value={col}>{col}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <label htmlFor="y-axis-select" className="block text-sm font-medium text-gray-700">Y-Axis:</label>
-              <select
-                id="y-axis-select"
-                value={yColumn || ''}
-                onChange={(e) => setYColumn(e.target.value)}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
-              >
-                {columns.map((col) => (
-                  <option key={col} value={col}>{col}</option>
-                ))}
-              </select>
+              <label htmlFor="y-axis-select" className="block text-sm font-medium text-muted-foreground mb-2">Y-Axis:</label>
+              <Select value={yColumn || ''} onValueChange={(value) => setYColumn(value)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Y-Axis" />
+                </SelectTrigger>
+                <SelectContent>
+                  {columns.map((col) => (
+                    <SelectItem key={col} value={col}>{col}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         )}
