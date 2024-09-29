@@ -390,27 +390,94 @@ export default function Component() {
   }
 
   function generateDummyData() {
-    const dummyData = [
-      { month: 'Jan', iceCreamSales: 100, sharkAttacks: 1 },
-      { month: 'Feb', iceCreamSales: 150, sharkAttacks: 2 },
-      { month: 'Mar', iceCreamSales: 200, sharkAttacks: 3 },
-      { month: 'Apr', iceCreamSales: 300, sharkAttacks: 4 },
-      { month: 'May', iceCreamSales: 400, sharkAttacks: 5 },
-      { month: 'Jun', iceCreamSales: 500, sharkAttacks: 7 },
-      { month: 'Jul', iceCreamSales: 600, sharkAttacks: 9 },
-      { month: 'Aug', iceCreamSales: 550, sharkAttacks: 8 },
-      { month: 'Sep', iceCreamSales: 400, sharkAttacks: 5 },
-      { month: 'Oct', iceCreamSales: 300, sharkAttacks: 3 },
-      { month: 'Nov', iceCreamSales: 200, sharkAttacks: 2 },
-      { month: 'Dec', iceCreamSales: 150, sharkAttacks: 1 },
+    const datasets = [
+      {
+        data: [
+          { Year: 2010, GlobalTemperature: 14.9 },
+          { Year: 2011, GlobalTemperature: 14.8 },
+          { Year: 2012, GlobalTemperature: 14.9 },
+          { Year: 2013, GlobalTemperature: 14.9 },
+          { Year: 2014, GlobalTemperature: 15.0 },
+          { Year: 2015, GlobalTemperature: 15.1 },
+          { Year: 2016, GlobalTemperature: 15.3 },
+          { Year: 2017, GlobalTemperature: 15.2 },
+          { Year: 2018, GlobalTemperature: 15.2 },
+          { Year: 2019, GlobalTemperature: 15.3 },
+          { Year: 2020, GlobalTemperature: 15.4 },
+        ],
+        columns: ['Year', 'GlobalTemperature'],
+        xColumn: 'Year',
+        yColumn: 'GlobalTemperature',
+        chartTitle: 'Global Average Temperature Over Years',
+      },
+      {
+        data: [
+          { Country: 'China', Population: 1444216107 },
+          { Country: 'India', Population: 1393409038 },
+          { Country: 'USA', Population: 331893745 },
+          { Country: 'Indonesia', Population: 273523621 },
+          { Country: 'Pakistan', Population: 220892331 },
+        ],
+        columns: ['Country', 'Population'],
+        xColumn: 'Country',
+        yColumn: 'Population',
+        chartTitle: 'Population of Top 5 Most Populous Countries',
+      },
+      {
+        data: [
+          { Continent: 'Asia', Area: 44579000 },
+          { Continent: 'Africa', Area: 30370000 },
+          { Continent: 'North America', Area: 24709000 },
+          { Continent: 'South America', Area: 17840000 },
+          { Continent: 'Antarctica', Area: 14000000 },
+          { Continent: 'Europe', Area: 10180000 },
+          { Continent: 'Australia', Area: 8600000 },
+        ],
+        columns: ['Continent', 'Area'],
+        xColumn: 'Continent',
+        yColumn: 'Area',
+        chartTitle: 'Area of Continents (in km²)',
+      },
+      {
+        data: [
+          { Year: '2016', OlympicMedals: 121 },
+          { Year: '2012', OlympicMedals: 104 },
+          { Year: '2008', OlympicMedals: 112 },
+          { Year: '2004', OlympicMedals: 101 },
+          { Year: '2000', OlympicMedals: 93 },
+        ],
+        columns: ['Year', 'OlympicMedals'],
+        xColumn: 'Year',
+        yColumn: 'OlympicMedals',
+        chartTitle: 'USA Olympic Medals Over Years',
+      },
+      {
+        data: [
+          { Planet: 'Mercury', DistanceFromSun: 57.9 },
+          { Planet: 'Venus', DistanceFromSun: 108.2 },
+          { Planet: 'Earth', DistanceFromSun: 149.6 },
+          { Planet: 'Mars', DistanceFromSun: 227.9 },
+          { Planet: 'Jupiter', DistanceFromSun: 778.6 },
+        ],
+        columns: ['Planet', 'DistanceFromSun'],
+        xColumn: 'Planet',
+        yColumn: 'DistanceFromSun',
+        chartTitle: 'Distance of Planets from the Sun (in million km)',
+      },
     ];
-    setRawData(dummyData);
-    setColumns(['month', 'iceCreamSales', 'sharkAttacks']);
-    setXColumn('month');
-    setYColumn('iceCreamSales');
-    setChartTitle('Ice Cream Sales and Shark Attacks Over Months');
+  
+    // Randomly select a dataset
+    const randomIndex = Math.floor(Math.random() * datasets.length);
+    const selectedDataset = datasets[randomIndex];
+  
+    setRawData(selectedDataset.data);
+    setColumns(selectedDataset.columns);
+    setXColumn(selectedDataset.xColumn);
+    setYColumn(selectedDataset.yColumn);
+    setChartTitle(selectedDataset.chartTitle);
     setShowDummyData(true);
   }
+  
   
 
   return (
