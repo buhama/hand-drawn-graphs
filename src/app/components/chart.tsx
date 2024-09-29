@@ -186,34 +186,45 @@ export default function Component() {
         const lineGenerator = d3.line<any>()
           .x(d => x(d[xColumn])! + x.bandwidth() / 2)
           .y(d => y(d[yColumn]))
+          .defined(d => !isNaN(d[yColumn])) // Add this line to handle undefined or NaN values
 
         const linePath = lineGenerator(data)
         if (linePath) {
-          g.node()?.appendChild(
-            rc.path(linePath, {
-              stroke: lineColor, // Use the random color here
-              strokeWidth: 2,
-              roughness: 1.5,
-              fillStyle: 'solid',
-            })
-          )
+          try {
+            g.node()?.appendChild(
+              rc.path(linePath, {
+                stroke: lineColor,
+                strokeWidth: 2,
+                roughness: 1.5,
+                fillStyle: 'solid',
+              })
+            )
+          } catch (error) {
+            console.error("Error drawing line path:", error)
+          }
         }
 
         // Draw dots
         data.forEach(d => {
-          g.node()?.appendChild(
-            rc.circle(
-              x(d[xColumn])! + x.bandwidth() / 2,
-              y(d[yColumn]),
-              6,
-              {
-                fill: lineColor, // Use the same random color for dots
-                fillStyle: 'solid',
-                stroke: 'none',
-                roughness: 1.5,
-              }
-            )
-          )
+          if (!isNaN(d[yColumn])) {
+            try {
+              g.node()?.appendChild(
+                rc.circle(
+                  x(d[xColumn])! + x.bandwidth() / 2,
+                  y(d[yColumn]),
+                  6,
+                  {
+                    fill: lineColor,
+                    fillStyle: 'solid',
+                    stroke: 'none',
+                    roughness: 1.5,
+                  }
+                )
+              )
+            } catch (error) {
+              console.error("Error drawing circle:", error)
+            }
+          }
         })
 
         // Add hover effects and tooltip
@@ -378,22 +389,29 @@ export default function Component() {
     fileInputRef.current?.click()
   }
 
-  const generateDummyData = () => {
+  function generateDummyData() {
     const dummyData = [
-      { month: 'Jan', sales: 120, profit: 20 },
-      { month: 'Feb', sales: 150, profit: 25 },
-      { month: 'Mar', sales: 200, profit: 35 },
-      { month: 'Apr', sales: 180, profit: 30 },
-      { month: 'May', sales: 250, profit: 45 },
-      { month: 'Jun', sales: 300, profit: 55 },
-    ]
-    setRawData(dummyData)
-    setColumns(['month', 'sales', 'profit'])
-    setXColumn('month')
-    setYColumn('sales')
-    setChartTitle('Monthly Sales')
-    setShowDummyData(true)
+      { month: 'Jan', iceCreamSales: 100, sharkAttacks: 1 },
+      { month: 'Feb', iceCreamSales: 150, sharkAttacks: 2 },
+      { month: 'Mar', iceCreamSales: 200, sharkAttacks: 3 },
+      { month: 'Apr', iceCreamSales: 300, sharkAttacks: 4 },
+      { month: 'May', iceCreamSales: 400, sharkAttacks: 5 },
+      { month: 'Jun', iceCreamSales: 500, sharkAttacks: 7 },
+      { month: 'Jul', iceCreamSales: 600, sharkAttacks: 9 },
+      { month: 'Aug', iceCreamSales: 550, sharkAttacks: 8 },
+      { month: 'Sep', iceCreamSales: 400, sharkAttacks: 5 },
+      { month: 'Oct', iceCreamSales: 300, sharkAttacks: 3 },
+      { month: 'Nov', iceCreamSales: 200, sharkAttacks: 2 },
+      { month: 'Dec', iceCreamSales: 150, sharkAttacks: 1 },
+    ];
+    setRawData(dummyData);
+    setColumns(['month', 'iceCreamSales', 'sharkAttacks']);
+    setXColumn('month');
+    setYColumn('iceCreamSales');
+    setChartTitle('Ice Cream Sales and Shark Attacks Over Months');
+    setShowDummyData(true);
   }
+  
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
