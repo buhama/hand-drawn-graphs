@@ -333,6 +333,15 @@ export default function Component() {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
+      // Reset state before parsing new file
+      setRawData([])
+      setData([])
+      setColumns([])
+      setXColumn(null)
+      setYColumn(null)
+      setChartTitle('')
+      setShowDummyData(false)
+
       Papa.parse(file, {
         header: true,
         complete: (results) => {
@@ -347,20 +356,23 @@ export default function Component() {
         },
       })
     }
+    // Reset the file input
+    if (event.target) {
+      event.target.value = ''
+    }
   }
 
   useEffect(() => {
     if (xColumn && yColumn && rawData.length > 0) {
-      const parsedData = rawData.map((row: any) => ({
-        [xColumn]: row[xColumn],
-        [yColumn]: parseFloat(row[yColumn])
-      })).filter((d: any) => !isNaN(d[yColumn]))
+      const parsedData = rawData
+        .map((row: any) => ({
+          [xColumn]: row[xColumn],
+          [yColumn]: parseFloat(row[yColumn])
+        }))
+        .filter((d: any) => !isNaN(d[yColumn]) && d[xColumn] !== undefined && d[xColumn] !== null)
       setData(parsedData)
-      if (showDummyData) {
-        setChartType('Bar')
-      }
     }
-  }, [xColumn, yColumn, rawData, showDummyData])
+  }, [xColumn, yColumn, rawData])
 
   const triggerFileInput = () => {
     fileInputRef.current?.click()
