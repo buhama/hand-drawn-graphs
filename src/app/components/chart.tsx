@@ -30,7 +30,8 @@ export default function Component() {
     const updateDimensions = () => {
       if (svgRef.current) {
         const { width } = svgRef.current.getBoundingClientRect()
-        setDimensions({ width, height: 400 }) // Increased height to 400
+        const height = window.innerWidth < 640 ? 300 : 400 // Adjust height for mobile
+        setDimensions({ width, height })
       }
     }
 
@@ -483,8 +484,8 @@ export default function Component() {
   return (
     <Card className="w-full max-w-6xl mx-auto">
       <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+          <div className="mb-4 sm:mb-0">
             <CardTitle>Hand-Drawn Chart</CardTitle>
             <CardDescription>Import CSV to visualize data with a sketchy appearance</CardDescription>
           </div>
@@ -511,7 +512,7 @@ export default function Component() {
       <CardContent>
         {showControls && (
           <>
-            <div className="mb-4 flex space-x-2">
+            <div className="mb-4 flex flex-wrap gap-2">
               <input
                 type="file"
                 accept=".csv"
@@ -536,14 +537,14 @@ export default function Component() {
                     value={chartTitle}
                     onChange={(e) => setChartTitle(e.target.value)}
                     placeholder="Enter chart title"
-                    className="max-w-md"
+                    className="max-w-full sm:max-w-md"
                   />
                 </div>
-                <div className="flex space-x-4">
-                  <div>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="w-full sm:w-auto">
                     <label htmlFor="chart-type-select" className="block text-sm font-medium text-muted-foreground mb-2">Chart Type:</label>
                     <Select value={chartType} onValueChange={(value) => setChartType(value)}>
-                      <SelectTrigger className="w-[180px]">
+                      <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="Select chart type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -553,10 +554,10 @@ export default function Component() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
+                  <div className="w-full sm:w-auto">
                     <label htmlFor="x-axis-select" className="block text-sm font-medium text-muted-foreground mb-2">X-Axis:</label>
                     <Select value={xColumn || ''} onValueChange={(value) => setXColumn(value)}>
-                      <SelectTrigger className="w-[180px]">
+                      <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="Select X-Axis" />
                       </SelectTrigger>
                       <SelectContent>
@@ -566,10 +567,10 @@ export default function Component() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
+                  <div className="w-full sm:w-auto">
                     <label htmlFor="y-axis-select" className="block text-sm font-medium text-muted-foreground mb-2">Y-Axis:</label>
                     <Select value={yColumn || ''} onValueChange={(value) => setYColumn(value)}>
-                      <SelectTrigger className="w-[180px]">
+                      <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="Select Y-Axis" />
                       </SelectTrigger>
                       <SelectContent>
@@ -584,7 +585,7 @@ export default function Component() {
             )}
           </>
         )}
-        <div className="w-full h-[400px] mt-10"> {/* Changed height from 300px to 400px */}
+        <div className="w-full h-[300px] sm:h-[400px] mt-10">
           <svg ref={svgRef} width="100%" height="100%" />
         </div>
       </CardContent>
