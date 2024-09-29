@@ -7,8 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import Papa from 'papaparse'
 import { useTheme } from "next-themes"
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons"
+import { MoonIcon, SunIcon, ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
 
 export default function Component() {
   const svgRef = useRef<SVGSVGElement | null>(null)
@@ -20,7 +21,9 @@ export default function Component() {
   const [xColumn, setXColumn] = useState<string | null>(null)
   const [yColumn, setYColumn] = useState<string | null>(null)
   const [chartType, setChartType] = useState<string>('Line')
+  const [chartTitle, setChartTitle] = useState<string>('')
   const { theme, setTheme } = useTheme()
+  const [showControls, setShowControls] = useState(true)
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -302,6 +305,16 @@ export default function Component() {
       }
     }
 
+    // Add chart title
+    svg.append("text")
+      .attr("x", dimensions.width / 2)
+      .attr("y", 20)
+      .attr("text-anchor", "middle")
+      .style("font-family", "Comic Sans MS, cursive")
+      .style("font-size", "18px")
+      .style("fill", theme === 'dark' ? '#ffffff' : '#000000')
+      .text(chartTitle)
+
     // Update text color based on theme
     const textColor = theme === 'dark' ? '#ffffff' : '#000000'
 
@@ -314,7 +327,7 @@ export default function Component() {
       .attr("class", `absolute ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} border border-primary p-2 rounded shadow invisible`)
       .style("font-family", "Comic Sans MS, cursive")
 
-  }, [dimensions, data, xColumn, yColumn, chartType, theme])
+  }, [dimensions, data, xColumn, yColumn, chartType, theme, chartTitle])
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -357,74 +370,100 @@ export default function Component() {
             <CardTitle>Hand-Drawn Chart</CardTitle>
             <CardDescription>Import CSV to visualize data with a sketchy appearance</CardDescription>
           </div>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          >
-            {theme === 'dark' ? <SunIcon className="h-[1.2rem] w-[1.2rem]" /> : <MoonIcon className="h-[1.2rem] w-[1.2rem]" />}
-            <span className="sr-only">Toggle theme</span>
-          </Button>
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setShowControls(!showControls)}
+            >
+              {showControls ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
+              <span className="sr-only">Toggle controls</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            >
+              {theme === 'dark' ? <SunIcon className="h-[1.2rem] w-[1.2rem]" /> : <MoonIcon className="h-[1.2rem] w-[1.2rem]" />}
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="mb-4">
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleFileUpload}
-            ref={fileInputRef}
-            className="hidden"
-            id="csv-upload"
-          />
-          <Button onClick={triggerFileInput}>
-            Import CSV
-          </Button>
-        </div>
-        {columns.length > 0 && (
-          <div className="mb-4 flex space-x-4">
-            <div>
-              <label htmlFor="chart-type-select" className="block text-sm font-medium text-muted-foreground mb-2">Chart Type:</label>
-              <Select value={chartType} onValueChange={(value) => setChartType(value)}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select chart type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Line">Line Chart</SelectItem>
-                  <SelectItem value="Bar">Bar Chart</SelectItem>
-                  <SelectItem value="Pie">Pie Chart</SelectItem>
-                </SelectContent>
-              </Select>
+        {showControls && (
+          <>
+            <div className="mb-4">
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                ref={fileInputRef}
+                className="hidden"
+                id="csv-upload"
+              />
+              <Button onClick={triggerFileInput}>
+                Import CSV
+              </Button>
             </div>
-            <div>
-              <label htmlFor="x-axis-select" className="block text-sm font-medium text-muted-foreground mb-2">X-Axis:</label>
-              <Select value={xColumn || ''} onValueChange={(value) => setXColumn(value)}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select X-Axis" />
-                </SelectTrigger>
-                <SelectContent>
-                  {columns.map((col) => (
-                    <SelectItem key={col} value={col}>{col}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label htmlFor="y-axis-select" className="block text-sm font-medium text-muted-foreground mb-2">Y-Axis:</label>
-              <Select value={yColumn || ''} onValueChange={(value) => setYColumn(value)}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select Y-Axis" />
-                </SelectTrigger>
-                <SelectContent>
-                  {columns.map((col) => (
-                    <SelectItem key={col} value={col}>{col}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+            {columns.length > 0 && (
+              <div className="mb-4 space-y-4">
+                <div>
+                  <label htmlFor="chart-title" className="block text-sm font-medium text-muted-foreground mb-2">Chart Title:</label>
+                  <Input
+                    id="chart-title"
+                    value={chartTitle}
+                    onChange={(e) => setChartTitle(e.target.value)}
+                    placeholder="Enter chart title"
+                    className="max-w-md"
+                  />
+                </div>
+                <div className="flex space-x-4">
+                  <div>
+                    <label htmlFor="chart-type-select" className="block text-sm font-medium text-muted-foreground mb-2">Chart Type:</label>
+                    <Select value={chartType} onValueChange={(value) => setChartType(value)}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select chart type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Line">Line Chart</SelectItem>
+                        <SelectItem value="Bar">Bar Chart</SelectItem>
+                        <SelectItem value="Pie">Pie Chart</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label htmlFor="x-axis-select" className="block text-sm font-medium text-muted-foreground mb-2">X-Axis:</label>
+                    <Select value={xColumn || ''} onValueChange={(value) => setXColumn(value)}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select X-Axis" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {columns.map((col) => (
+                          <SelectItem key={col} value={col}>{col}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label htmlFor="y-axis-select" className="block text-sm font-medium text-muted-foreground mb-2">Y-Axis:</label>
+                    <Select value={yColumn || ''} onValueChange={(value) => setYColumn(value)}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select Y-Axis" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {columns.map((col) => (
+                          <SelectItem key={col} value={col}>{col}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
-        <div className="w-full h-[400px]"> {/* Changed height from 300px to 400px */}
+        <div className="w-full h-[400px] mt-10"> {/* Changed height from 300px to 400px */}
           <svg ref={svgRef} width="100%" height="100%" />
         </div>
       </CardContent>
