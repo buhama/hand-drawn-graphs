@@ -235,51 +235,63 @@ export default function Component() {
           })
 
       } else if (chartType === 'Bar') {
-        // Draw bars
         data.forEach(d => {
-          const xPos = x(d[xColumn])!
-          const yPos = y(d[yColumn])
-          const barHeight = height - yPos
-          const barWidth = x.bandwidth()
-
-          const rect = rc.rectangle(xPos, yPos, barWidth, barHeight, {
-            fill: color(d[xColumn]) as string,
-            fillStyle: 'solid',
-            stroke: 'none',
-            roughness: 0.8,
+            const xPos = x(d[xColumn])!
+            const yPos = y(d[yColumn])
+            const barHeight = height - yPos
+            const barWidth = x.bandwidth()
+  
+            // Create the main rectangle
+            const rect = rc.rectangle(xPos, yPos, barWidth, barHeight, {
+              fill: color(d[xColumn]) as string,
+              fillStyle: 'zigzag',
+              stroke: 'black',
+              strokeWidth: 2,
+              roughness: 1.5,
+              hachureAngle: 60,
+              hachureGap: 4,
+            })
+            g.node()?.appendChild(rect)
+  
+            // Add a slightly offset duplicate rectangle for a shadow effect
+            const shadowRect = rc.rectangle(xPos + 2, yPos + 2, barWidth, barHeight, {
+              fill: 'none',
+              stroke: 'black',
+              strokeWidth: 1,
+              roughness: 1.5,
+            })
+            g.node()?.appendChild(shadowRect)
           })
-          g.node()?.appendChild(rect)
-        })
-
-        // Add hover effects and tooltip
-        const tooltip = d3.select("body").append("div")
-          .attr("class", "absolute bg-background border border-primary p-2 rounded shadow invisible")
-          .style("font-family", "Comic Sans MS, cursive")
-
-        g.selectAll("rect")
-          .data(data)
-          .enter()
-          .append("rect")
-          .attr("x", d => x(d[xColumn])!)
-          .attr("y", d => y(d[yColumn]))
-          .attr("width", x.bandwidth())
-          .attr("height", d => height - y(d[yColumn]))
-          .attr("fill", "transparent")
-          .on("mouseover", (event, d) => {
-            tooltip.transition()
-              .duration(200)
-              .style("opacity", .9)
-            tooltip.html(`${xColumn}: ${d[xColumn]}<br>${yColumn}: ${d[yColumn]}`)
-              .style("left", (event.pageX + 10) + "px")
-              .style("top", (event.pageY - 28) + "px")
-              .style("visibility", "visible")
-          })
-          .on("mouseout", () => {
-            tooltip.transition()
-              .duration(500)
-              .style("opacity", 0)
-              .style("visibility", "hidden")
-          })
+  
+          // Add hover effects and tooltip
+          const tooltip = d3.select("body").append("div")
+            .attr("class", "absolute bg-background border border-primary p-2 rounded shadow invisible")
+            .style("font-family", "Comic Sans MS, cursive")
+  
+          g.selectAll("rect")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("x", d => x(d[xColumn])!)
+            .attr("y", d => y(d[yColumn]))
+            .attr("width", x.bandwidth())
+            .attr("height", d => height - y(d[yColumn]))
+            .attr("fill", "transparent")
+            .on("mouseover", (event, d) => {
+              tooltip.transition()
+                .duration(200)
+                .style("opacity", .9)
+              tooltip.html(`${xColumn}: ${d[xColumn]}<br>${yColumn}: ${d[yColumn]}`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 28) + "px")
+                .style("visibility", "visible")
+            })
+            .on("mouseout", () => {
+              tooltip.transition()
+                .duration(500)
+                .style("opacity", 0)
+                .style("visibility", "hidden")
+            })
       }
     }
   }, [dimensions, data, xColumn, yColumn, chartType])
