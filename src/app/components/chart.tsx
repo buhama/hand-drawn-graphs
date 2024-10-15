@@ -26,6 +26,8 @@ export default function Component() {
   const [showControls, setShowControls] = useState(true)
   const [showDummyData, setShowDummyData] = useState(false)
   const [labelPosition, setLabelPosition] = useState<'axis' | 'data'>('axis')
+  const [xAxisLabel, setXAxisLabel] = useState<string>('')
+  const [yAxisLabel, setYAxisLabel] = useState<string>('')
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -128,7 +130,7 @@ export default function Component() {
         })
 
     } else {
-      const margin = { top: 20, right: 30, bottom: 50, left: 60 }
+      const margin = { top: 20, right: 30, bottom: 60, left: 60 }
       const width = dimensions.width - margin.left - margin.right
       const height = dimensions.height - margin.top - margin.bottom
 
@@ -182,6 +184,33 @@ export default function Component() {
         .call(g => g.selectAll(".tick text")
           .attr("class", "text-xs text-muted-foreground")
           .style("font-family", "Comic Sans MS, cursive"))
+
+      // Add X axis label
+      if (xAxisLabel) {
+        g.append("text")
+          .attr("class", "x-axis-label")
+          .attr("x", width / 2)
+          .attr("y", height + margin.bottom - 10)
+          .style("text-anchor", "middle")
+          .style("font-family", "Comic Sans MS, cursive")
+          .style("font-size", "12px")
+          .style("fill", theme === 'dark' ? '#ffffff' : '#000000')
+          .text(xAxisLabel)
+      }
+
+      // Add Y axis label
+      if (yAxisLabel) {
+        g.append("text")
+          .attr("class", "y-axis-label")
+          .attr("transform", "rotate(-90)")
+          .attr("x", -height / 2)
+          .attr("y", -margin.left + 15)
+          .style("text-anchor", "middle")
+          .style("font-family", "Comic Sans MS, cursive")
+          .style("font-size", "12px")
+          .style("fill", theme === 'dark' ? '#ffffff' : '#000000')
+          .text(yAxisLabel)
+      }
 
       if (chartType === 'Line') {
         // Generate a random color for the line
@@ -450,7 +479,7 @@ export default function Component() {
       .attr("class", `absolute ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} border border-primary p-2 rounded shadow invisible`)
       .style("font-family", "Comic Sans MS, cursive")
 
-  }, [dimensions, data, xColumn, yColumn, chartType, theme, chartTitle, labelPosition])
+  }, [dimensions, data, xColumn, yColumn, chartType, theme, chartTitle, labelPosition, xAxisLabel, yAxisLabel])
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -701,6 +730,26 @@ export default function Component() {
                         <SelectItem value="data">Next to Data</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+                  <div className="w-full sm:w-auto">
+                    <label htmlFor="x-axis-label" className="block text-sm font-medium text-muted-foreground mb-2">X-Axis Label:</label>
+                    <Input
+                      id="x-axis-label"
+                      value={xAxisLabel}
+                      onChange={(e) => setXAxisLabel(e.target.value)}
+                      placeholder="Enter X-Axis label"
+                      className="w-full sm:w-[180px]"
+                    />
+                  </div>
+                  <div className="w-full sm:w-auto">
+                    <label htmlFor="y-axis-label" className="block text-sm font-medium text-muted-foreground mb-2">Y-Axis Label:</label>
+                    <Input
+                      id="y-axis-label"
+                      value={yAxisLabel}
+                      onChange={(e) => setYAxisLabel(e.target.value)}
+                      placeholder="Enter Y-Axis label"
+                      className="w-full sm:w-[180px]"
+                    />
                   </div>
                 </div>
               </div>
