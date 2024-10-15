@@ -25,6 +25,7 @@ export default function Component() {
   const { theme, setTheme } = useTheme()
   const [showControls, setShowControls] = useState(true)
   const [showDummyData, setShowDummyData] = useState(false)
+  const [labelPosition, setLabelPosition] = useState<'axis' | 'data'>('axis')
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -149,26 +150,29 @@ export default function Component() {
       const g = svg.append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`)
 
-      // Calculate the number of ticks that can fit without overlapping
-      const maxLabelWidth = 50; // approximate max width per label
-      const numTicks = Math.max(Math.floor(width / maxLabelWidth), 1);
-      const totalTicks = x.domain().length;
-      const tickValues = x.domain().filter((d, i) => {
-        const skip = Math.ceil(totalTicks / numTicks);
-        return i % skip === 0;
-      });
+      // Draw x-axis only if labelPosition is 'axis'
+      if (labelPosition === 'axis') {
+        // Calculate the number of ticks that can fit without overlapping
+        const maxLabelWidth = 50; // approximate max width per label
+        const numTicks = Math.max(Math.floor(width / maxLabelWidth), 1);
+        const totalTicks = x.domain().length;
+        const tickValues = x.domain().filter((d, i) => {
+          const skip = Math.ceil(totalTicks / numTicks);
+          return i % skip === 0;
+        });
 
-      // Draw x-axis
-      g.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x).tickValues(tickValues))
-        .call(g => g.select(".domain").remove())
-        .call(g => g.selectAll(".tick line").remove())
-        .call(g => g.selectAll(".tick text")
-          .attr("class", "text-xs text-muted-foreground")
-          .style("font-family", "Comic Sans MS, cursive")
-          .attr("transform", "rotate(-45)")
-          .style("text-anchor", "end"))
+        // Draw x-axis
+        g.append("g")
+          .attr("transform", `translate(0,${height})`)
+          .call(d3.axisBottom(x).tickValues(tickValues))
+          .call(g => g.select(".domain").remove())
+          .call(g => g.selectAll(".tick line").remove())
+          .call(g => g.selectAll(".tick text")
+            .attr("class", "text-xs text-muted-foreground")
+            .style("font-family", "Comic Sans MS, cursive")
+            .attr("transform", "rotate(-45)")
+            .style("text-anchor", "end"))
+      }
 
       // Draw y-axis
       g.append("g")
@@ -257,6 +261,59 @@ export default function Component() {
               .style("visibility", "hidden")
           })
 
+        // Add labels next to points if labelPosition is 'data'
+        if (labelPosition === 'data') {
+          const wrapText = (text: string, width: number) => {
+            const words = text.split(/\s+/).reverse();
+            const lines = [];
+            let line = [];
+            let lineLength = 0;
+            while (words.length > 0) {
+              const word = words.pop()!;
+              if (lineLength + word.length + 1 > width) {
+                if (line.length) {
+                  lines.push(line.join(' '));
+                  line = [];
+                  lineLength = 0;
+                }
+                if (word.length > width) {
+                  lines.push(word);
+                  continue;
+                }
+              }
+              line.push(word);
+              lineLength += word.length + 1;
+            }
+            if (line.length) {
+              lines.push(line.join(' '));
+            }
+            return lines;
+          };
+
+          g.selectAll(".point-label")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "point-label")
+            .attr("x", d => x(d[xColumn])! + x.bandwidth() / 2 + 5)
+            .attr("y", d => y(d[yColumn]))
+            .attr("dy", "-0.35em")
+            .style("font-family", "Comic Sans MS, cursive")
+            .style("font-size", "10px")
+            .style("fill", theme === 'dark' ? '#ffffff' : '#000000')
+            .each(function(d) {
+              const label = d[xColumn].toString();
+              const lines = wrapText(label, 15);
+              d3.select(this).selectAll("tspan")
+                .data(lines)
+                .enter()
+                .append("tspan")
+                .attr("x", x(d[xColumn])! + x.bandwidth() / 2 + 5)
+                .attr("dy", (_, i) => i === 0 ? "0" : "1.1em")
+                .text(d => d);
+            });
+        }
+
       } else if (chartType === 'Bar') {
         data.forEach(d => {
             const xPos = x(d[xColumn])!
@@ -315,6 +372,59 @@ export default function Component() {
                 .style("opacity", 0)
                 .style("visibility", "hidden")
             })
+
+        // Add labels on top of bars if labelPosition is 'data'
+        if (labelPosition === 'data') {
+          const wrapText = (text: string, width: number) => {
+            const words = text.split(/\s+/).reverse();
+            const lines = [];
+            let line = [];
+            let lineLength = 0;
+            while (words.length > 0) {
+              const word = words.pop()!;
+              if (lineLength + word.length + 1 > width) {
+                if (line.length) {
+                  lines.push(line.join(' '));
+                  line = [];
+                  lineLength = 0;
+                }
+                if (word.length > width) {
+                  lines.push(word);
+                  continue;
+                }
+              }
+              line.push(word);
+              lineLength += word.length + 1;
+            }
+            if (line.length) {
+              lines.push(line.join(' '));
+            }
+            return lines;
+          };
+
+          g.selectAll(".bar-label")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "bar-label")
+            .attr("x", d => x(d[xColumn])! + x.bandwidth() / 2)
+            .attr("y", d => y(d[yColumn]) - 5)
+            .attr("text-anchor", "middle")
+            .style("font-family", "Comic Sans MS, cursive")
+            .style("font-size", "10px")
+            .style("fill", theme === 'dark' ? '#ffffff' : '#000000')
+            .each(function(d) {
+              const label = d[xColumn].toString();
+              const lines = wrapText(label, 15);
+              d3.select(this).selectAll("tspan")
+                .data(lines)
+                .enter()
+                .append("tspan")
+                .attr("x", x(d[xColumn])! + x.bandwidth() / 2)
+                .attr("dy", (_, i) => i === 0 ? "0" : "1.1em")
+                .text(d => d);
+            });
+        }
       }
     }
 
@@ -340,7 +450,7 @@ export default function Component() {
       .attr("class", `absolute ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} border border-primary p-2 rounded shadow invisible`)
       .style("font-family", "Comic Sans MS, cursive")
 
-  }, [dimensions, data, xColumn, yColumn, chartType, theme, chartTitle])
+  }, [dimensions, data, xColumn, yColumn, chartType, theme, chartTitle, labelPosition])
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -577,6 +687,18 @@ export default function Component() {
                         {columns.map((col) => (
                           <SelectItem key={col} value={col}>{col}</SelectItem>
                         ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="w-full sm:w-auto">
+                    <label htmlFor="label-position-select" className="block text-sm font-medium text-muted-foreground mb-2">Label Position:</label>
+                    <Select value={labelPosition} onValueChange={(value: 'axis' | 'data') => setLabelPosition(value)}>
+                      <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectValue placeholder="Select label position" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="axis">On Axis</SelectItem>
+                        <SelectItem value="data">Next to Data</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
