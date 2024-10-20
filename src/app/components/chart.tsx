@@ -28,6 +28,7 @@ export default function Component() {
   const [labelPosition, setLabelPosition] = useState<'axis' | 'data'>('axis')
   const [xAxisLabel, setXAxisLabel] = useState<string>('')
   const [yAxisLabel, setYAxisLabel] = useState<string>('')
+  const [sortOrder, setSortOrder] = useState<'original' | 'ascending' | 'descending'>('original')
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -43,6 +44,26 @@ export default function Component() {
 
     return () => window.removeEventListener('resize', updateDimensions)
   }, [])
+
+  useEffect(() => {
+    if (xColumn && yColumn && rawData.length > 0) {
+      let parsedData = rawData
+        .map((row: any) => ({
+          [xColumn]: row[xColumn],
+          [yColumn]: parseFloat(row[yColumn])
+        }))
+        .filter((d: any) => !isNaN(d[yColumn]) && d[xColumn] !== undefined && d[xColumn] !== null)
+
+      // Apply sorting based on sortOrder
+      if (sortOrder === 'ascending') {
+        parsedData.sort((a, b) => a[yColumn] - b[yColumn])
+      } else if (sortOrder === 'descending') {
+        parsedData.sort((a, b) => b[yColumn] - a[yColumn])
+      }
+
+      setData(parsedData)
+    }
+  }, [xColumn, yColumn, rawData, sortOrder])
 
   useEffect(() => {
     if (!dimensions.width || !svgRef.current || data.length === 0 || !xColumn || !yColumn) return
@@ -513,18 +534,6 @@ export default function Component() {
     }
   }
 
-  useEffect(() => {
-    if (xColumn && yColumn && rawData.length > 0) {
-      const parsedData = rawData
-        .map((row: any) => ({
-          [xColumn]: row[xColumn],
-          [yColumn]: parseFloat(row[yColumn])
-        }))
-        .filter((d: any) => !isNaN(d[yColumn]) && d[xColumn] !== undefined && d[xColumn] !== null)
-      setData(parsedData)
-    }
-  }, [xColumn, yColumn, rawData])
-
   const triggerFileInput = () => {
     fileInputRef.current?.click()
   }
@@ -750,6 +759,19 @@ export default function Component() {
                       placeholder="Enter Y-Axis label"
                       className="w-full sm:w-[180px]"
                     />
+                  </div>
+                  <div className="w-full sm:w-auto">
+                    <label htmlFor="sort-order-select" className="block text-sm font-medium text-muted-foreground mb-2">Sort Order:</label>
+                    <Select value={sortOrder} onValueChange={(value: 'original' | 'ascending' | 'descending') => setSortOrder(value)}>
+                      <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectValue placeholder="Select sort order" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="original">Original</SelectItem>
+                        <SelectItem value="ascending">Lowest to Highest</SelectItem>
+                        <SelectItem value="descending">Highest to Lowest</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
