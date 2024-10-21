@@ -688,11 +688,11 @@ export default function Component() {
                     className="max-w-full sm:max-w-md"
                   />
                 </div>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="w-full sm:w-auto">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:grid-cols-2 gap-x-2 gap-y-2">
+                  <div className="w-full">
                     <label htmlFor="chart-type-select" className="block text-sm font-medium text-muted-foreground mb-2">Chart Type:</label>
                     <Select value={chartType} onValueChange={(value) => setChartType(value)}>
-                      <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select chart type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -702,10 +702,10 @@ export default function Component() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="w-full sm:w-auto">
+                  <div className="w-full">
                     <label htmlFor="x-axis-select" className="block text-sm font-medium text-muted-foreground mb-2">X-Axis:</label>
                     <Select value={xColumn || ''} onValueChange={(value) => setXColumn(value)}>
-                      <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select X-Axis" />
                       </SelectTrigger>
                       <SelectContent>
@@ -715,10 +715,10 @@ export default function Component() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="w-full sm:w-auto">
+                  <div className="w-full">
                     <label htmlFor="y-axis-select" className="block text-sm font-medium text-muted-foreground mb-2">Y-Axis:</label>
                     <Select value={yColumn || ''} onValueChange={(value) => setYColumn(value)}>
-                      <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select Y-Axis" />
                       </SelectTrigger>
                       <SelectContent>
@@ -728,10 +728,10 @@ export default function Component() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="w-full sm:w-auto">
+                  <div className="w-full">
                     <label htmlFor="label-position-select" className="block text-sm font-medium text-muted-foreground mb-2">Label Position:</label>
                     <Select value={labelPosition} onValueChange={(value: 'axis' | 'data') => setLabelPosition(value)}>
-                      <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select label position" />
                       </SelectTrigger>
                       <SelectContent>
@@ -740,30 +740,30 @@ export default function Component() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="w-full sm:w-auto">
+                  <div className="w-full">
                     <label htmlFor="x-axis-label" className="block text-sm font-medium text-muted-foreground mb-2">X-Axis Label:</label>
                     <Input
                       id="x-axis-label"
                       value={xAxisLabel}
                       onChange={(e) => setXAxisLabel(e.target.value)}
                       placeholder="Enter X-Axis label"
-                      className="w-full sm:w-[180px]"
+                      className="w-full"
                     />
                   </div>
-                  <div className="w-full sm:w-auto">
+                  <div className="w-full">
                     <label htmlFor="y-axis-label" className="block text-sm font-medium text-muted-foreground mb-2">Y-Axis Label:</label>
                     <Input
                       id="y-axis-label"
                       value={yAxisLabel}
                       onChange={(e) => setYAxisLabel(e.target.value)}
                       placeholder="Enter Y-Axis label"
-                      className="w-full sm:w-[180px]"
+                      className="w-full"
                     />
                   </div>
-                  <div className="w-full sm:w-auto">
+                  <div className="w-full">
                     <label htmlFor="sort-order-select" className="block text-sm font-medium text-muted-foreground mb-2">Sort Order:</label>
                     <Select value={sortOrder} onValueChange={(value: 'original' | 'ascending' | 'descending') => setSortOrder(value)}>
-                      <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select sort order" />
                       </SelectTrigger>
                       <SelectContent>
