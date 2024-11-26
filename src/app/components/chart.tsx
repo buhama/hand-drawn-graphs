@@ -10,6 +10,7 @@ import { useTheme } from "next-themes"
 import { MoonIcon, SunIcon, ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
+import { CreateDataDialog } from "@/app/components/create-data-dialog"
 
 export default function Component() {
   const svgRef = useRef<SVGSVGElement | null>(null)
@@ -30,6 +31,7 @@ export default function Component() {
   const [yAxisLabel, setYAxisLabel] = useState<string>('')
   const [sortOrder, setSortOrder] = useState<'original' | 'ascending' | 'descending'>('original')
   const [itemLimit, setItemLimit] = useState<number | null>(null)
+  const [createDataDialogOpen, setCreateDataDialogOpen] = useState(false)
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -507,7 +509,17 @@ export default function Component() {
       .style("font-family", "Comic Sans MS, cursive")
 
   }, [dimensions, data, xColumn, yColumn, chartType, theme, chartTitle, labelPosition, xAxisLabel, yAxisLabel])
-
+  
+  const handleCustomDataCreate = (customData: Record<string, string>[]) => {
+    const customColumns = Object.keys(customData[0])
+    setColumns(customColumns)
+    setRawData(customData)
+    setXColumn(customColumns[0])
+    setYColumn(customColumns[1])
+    setChartTitle('Custom Dataset')
+    setShowDummyData(false)
+  }
+  
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
@@ -681,7 +693,15 @@ export default function Component() {
               <Button onClick={generateDummyData}>
                 Show Example
               </Button>
+              <Button onClick={() => setCreateDataDialogOpen(true)}>
+                Create Data
+              </Button>
             </div>
+            <CreateDataDialog
+              open={createDataDialogOpen}
+              onOpenChange={setCreateDataDialogOpen}
+              onDataCreate={handleCustomDataCreate}
+            />
             {columns.length > 0 && (
               <div className="mb-4 space-y-4">
                 <div>
