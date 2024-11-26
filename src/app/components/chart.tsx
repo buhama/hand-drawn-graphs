@@ -29,6 +29,7 @@ export default function Component() {
   const [xAxisLabel, setXAxisLabel] = useState<string>('')
   const [yAxisLabel, setYAxisLabel] = useState<string>('')
   const [sortOrder, setSortOrder] = useState<'original' | 'ascending' | 'descending'>('original')
+  const [itemLimit, setItemLimit] = useState<number | null>(null)
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -61,9 +62,14 @@ export default function Component() {
         parsedData.sort((a, b) => b[yColumn] - a[yColumn])
       }
 
+      // Apply item limit if set
+      if (itemLimit && itemLimit > 0) {
+        parsedData = parsedData.slice(0, itemLimit)
+      }
+
       setData(parsedData)
     }
-  }, [xColumn, yColumn, rawData, sortOrder])
+  }, [xColumn, yColumn, rawData, sortOrder, itemLimit])
 
   useEffect(() => {
     if (!dimensions.width || !svgRef.current || data.length === 0 || !xColumn || !yColumn) return
@@ -772,6 +778,18 @@ export default function Component() {
                         <SelectItem value="descending">Highest to Lowest</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+                  <div className="w-full">
+                    <label htmlFor="item-limit" className="block text-sm font-medium text-muted-foreground mb-2">Number of Items to Show:</label>
+                    <Input
+                      id="item-limit"
+                      type="number"
+                      min="1"
+                      value={itemLimit || ''}
+                      onChange={(e) => setItemLimit(e.target.value ? parseInt(e.target.value) : null)}
+                      placeholder="Show all"
+                      className="w-full"
+                    />
                   </div>
                 </div>
               </div>
